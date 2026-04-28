@@ -2,7 +2,7 @@ package authz
 
 default allow := false
 
-# Allow if token has a valid role
+# Allow if token has a valid roles
 allow {
     input.role == "admin"
 }
