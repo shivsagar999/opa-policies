@@ -1,0 +1,36 @@
+name: Publish OPA Bundle
+
+on:
+  push:
+    branches: [main]
+    paths: ["policies/**"]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup OPA
+        uses: open-policy-agent/setup-opa@v2
+        with:
+          version: latest
+
+      - name: Test policies
+        run: opa test ./policies -v
+
+      - name: Build bundle
+        run: opa build -b ./policies -o bundle.tar.gz
+
+      - name: Login to GHCR
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | oras login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Push bundle to GHCR
+        run: |
+          oras push ghcr.io/shivsagar999/opa-policies:latest bundle.tar.gz
+          oras push ghcr.io/shivsagar999/opa-policies:${{ github.sha }} bundle.tar.gz
