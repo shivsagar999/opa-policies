@@ -3,16 +3,16 @@ package authz
 default allow := false
 
 # Allow if token has a valid roles
-allow {
+allow if {
     input.role == "admin"
 }
 
-allow {
+allow if {
     input.role == "user"
     input.method == "GET"
 }
 
 # Public paths always allowed
-allow {
+allow if {
     input.path == "/health"
 }
